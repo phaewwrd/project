@@ -179,3 +179,69 @@ router.post("/register", validateWithZod(registerScheme), authController.registe
 );
 router.post("/login", validateWithZod(loginScheme), authController.login);
 ```
+
+## Step 9 Prisma
+```bash
+# connect with code in route with database 
+npm i prisma/client 
+
+npx prisma db push
+#or
+npx prisma migrate dev --name init
+```
+
+### Config prisma
+/configs/prisma.js
+```js
+const { PrismaClient } = require("@prisma/client")
+
+const prisma = new PrismaClient();
+
+module.exports = prisma
+```
+
+ update register
+/controller/auth-controller.js
+```js
+const prisma = require("../configs/prisma");
+const createError = require("../utils/createError");
+const bcrypt = require("bcryptjs")
+
+exports.register = async (req, res, next) => {
+  try {
+    //Step 1 req.body
+    const { email, firstname, lastname, password, confirmPassword } = req.body;
+    //Step 2 validate
+    //----------------------------------------------------
+    //Step 3 Check already
+    const checkEmail = await prisma.profile.findFirst({
+        where:{
+            email: email,
+        }
+    })
+    if(checkEmail){
+        return createError(400, "Email is already exits")
+    }    
+    //----------------------------------------------------
+    //Step 4 Encrypt bcrypt
+    const hashedPassword = bcrypt.hashSync(password, 10)
+    console.log(hashedPassword);
+    //----------------------------------------------------
+    //Step 5 Insert to DB
+    const profile =await prisma.profile.create({
+        data:{
+            email: email,
+            firstname: firstname,
+            lastname: lastname,
+            password: hashedPassword
+        },
+    })
+
+    //Step 6 Response
+    res.json({ message: "Hello, Register" });
+  } catch (error) {
+    console.log(error);
+    next(error)
+  }
+};
+```
