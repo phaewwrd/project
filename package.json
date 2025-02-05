@@ -4,7 +4,8 @@
   "description": "bash  npm init -y  ## step 2 install nodemon  bash npm install express nodemon cors morgan bcryptjs jsonwebtoken zod prisma",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start" : "nodemon index.js"
   },
   "keywords": [],
   "author": "",
